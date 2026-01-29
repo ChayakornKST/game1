@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="th">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เกมกฎหมายคอมพิวเตอร์</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: auto;
+    }
+
+    .game-container {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 800px;
+      width: 100%;
+      padding: 40px;
+      position: relative;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #6b7280;
+      font-size: 1.1em;
+    }
+
+    .score-board {
+      display: flex;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      padding: 16px 24px;
+      border-radius: 16px;
+      margin-bottom: 32px;
+    }
+
+    .score-item {
+      text-align: center;
+    }
+
+    .score-label {
+      font-size: 0.85em;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .score-value {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .scenario-card {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border-left: 6px solid #f59e0b;
+    }
+
+    .scenario-icon {
+      font-size: 2em;
+      margin-bottom: 12px;
+    }
+
+    .scenario-text {
+      font-size: 1.15em;
+      color: #78350f;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .option-btn {
+      background: white;
+      border: 3px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 1.05em;
+      font-family: 'Kanit', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+      font-weight: 500;
+      color: #1f2937;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: #667eea;
+      background: #f3f4f6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .option-btn.correct {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border-color: #10b981;
+      color: #065f46;
+    }
+
+    .option-btn.incorrect {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      border-color: #ef4444;
+      color: #991b1b;
+    }
+
+    .explanation {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      border-left: 6px solid #3b82f6;
+      display: none;
+    }
+
+    .explanation.show {
+      display: block;
+      animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .explanation-title {
+      font-size: 1.1em;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .explanation-text {
+      color: #1e3a8a;
+      line-height: 1.6;
+    }
+
+    .next-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 1.1em;
+      font-family: 'Kanit', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: none;
+    }
+
+    .next-btn.show {
+      display: block;
+    }
+
+    .next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .result-screen {
+      text-align: center;
+      display: none;
+    }
+
+    .result-screen.show {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .result-icon {
+      font-size: 5em;
+      margin-bottom: 16px;
+    }
+
+    .result-title {
+      font-size: 2em;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 16px;
+    }
+
+    .result-score {
+      font-size: 3em;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 24px;
+    }
+
+    .result-message {
+      font-size: 1.2em;
+      color: #6b7280;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .restart-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 48px;
+      font-size: 1.1em;
+      font-family: 'Kanit', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .restart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    @media (max-width: 640px) {
+      .game-container {
+        padding: 24px;
+      }
+
+      .header h1 {
+        font-size: 1.8em;
+      }
+
+      .scenario-text {
+        font-size: 1em;
+      }
+
+      .option-btn {
+        font-size: 0.95em;
+        padding: 14px 16px;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="game-container">
+   <div class="header">
+    <h1 id="game-title">🎮 เกมกฎหมายคอมพิวเตอร์</h1>
+    <p id="game-subtitle">ทดสอบความรู้เกี่ยวกับกฎหมายการกระทำความผิดด้านคอมพิวเตอร์</p>
+   </div>
+   <div id="game-screen">
+    <div class="score-board">
+     <div class="score-item">
+      <div class="score-label">
+       คำถามที่
+      </div>
+      <div class="score-value" id="question-number">
+       1/5
+      </div>
+     </div>
+     <div class="score-item">
+      <div class="score-label">
+       คะแนน
+      </div>
+      <div class="score-value" id="current-score">
+       0
+      </div>
+     </div>
+    </div>
+    <div class="scenario-card">
+     <div class="scenario-icon" id="scenario-icon">
+      💻
+     </div>
+     <div class="scenario-text" id="scenario-text"></div>
+    </div>
+    <div class="options-container" id="options-container"></div>
+    <div class="explanation" id="explanation">
+     <div class="explanation-title" id="explanation-title"></div>
+     <div class="explanation-text" id="explanation-text"></div>
+    </div><button class="next-btn" id="next-btn">ข้อถัดไป →</button>
+   </div>
+   <div class="result-screen" id="result-screen">
+    <div class="result-icon" id="result-icon"></div>
+    <div class="result-title" id="result-title"></div>
+    <div class="result-score" id="final-score"></div>
+    <div class="result-message" id="result-message"></div><button class="restart-btn" id="restart-btn">🔄 เล่นอีกครั้ง</button>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      game_title: "🎮 เกมกฎหมายคอมพิวเตอร์",
+      game_subtitle: "ทดสอบความรู้เกี่ยวกับกฎหมายการกระทำความผิดด้านคอมพิวเตอร์"
+    };
+
+    const scenarios = [
+      {
+        icon: "📱",
+        text: "น้องมินแอบถ่ายรูปเพื่อนในห้องน้ำโดยไม่ได้รับอนุญาต แล้วนำไปโพสต์บน Facebook",
+        options: [
+          "ผิดกฎหมาย - ละเมิดความเป็นส่วนตัว",
+          "ไม่ผิด - เป็นเพื่อนกันอยู่แล้ว",
+          "ขึ้นอยู่กับว่าเพื่อนโกรธหรือไม่"
+        ],
+        correct: 0,
+        explanation: "✅ ผิดกฎหมาย! การถ่ายรูปผู้อื่นโดยไม่ได้รับอนุญาตและนำไปเผยแพร่ถือเป็นการละเมิดความเป็นส่วนตัว ตามพ.ร.บ.คอมพิวเตอร์ฯ มีโทษจำคุกและปรับ"
+      },
+      {
+        icon: "💬",
+        text: "พี่โจคอมเมนต์ในเฟซบุ๊กว่า 'ร้านนี้ขายของปลอม แย่มาก ห่วยแตก' โดยไม่มีหลักฐาน",
+        options: [
+          "ไม่ผิด - เป็นสิทธิ์ในการแสดงความคิดเห็น",
+          "ผิดกฎหมาย - หมิ่นประมาทและทำให้เสียชื่อเสียง",
+          "ผิดแค่ถ้าร้านฟ้อง"
+        ],
+        correct: 1,
+        explanation: "✅ ผิดกฎหมาย! การกล่าวหาโดยไม่มีหลักฐานและใช้ถ้อยคำรุนแรงถือเป็นการหมิ่นประมาทในระบบคอมพิวเตอร์ มีโทษทั้งจำคุกและปรับ แม้จะเป็นความคิดเห็นก็ต้องมีเหตุผลและไม่เกินเลย"
+      },
+      {
+        icon: "🔓",
+        text: "แบงค์รู้รหัส WiFi บ้านเพื่อนบ้าน เลยแอบเข้าใช้อินเทอร์เน็ตฟรี",
+        options: [
+          "ไม่ผิด - ไม่ได้ทำอะไรร้ายแรง",
+          "ผิดกฎหมาย - เข้าถึงระบบคอมพิวเตอร์โดยไม่ได้รับอนุญาต",
+          "ขึ้นอยู่กับว่าเจ้าของรู้หรือไม่"
+        ],
+        correct: 1,
+        explanation: "✅ ผิดกฎหมาย! การเข้าใช้ระบบคอมพิวเตอร์หรือเครือข่ายของผู้อื่นโดยไม่ได้รับอนุญาตถือเป็นความผิดตามมาตรา 5 พ.ร.บ.คอมพิวเตอร์ฯ แม้จะไม่ได้ทำลายข้อมูลก็ตาม"
+      },
+      {
+        icon: "💾",
+        text: "เอ็มดาวน์โหลดโปรแกรม Photoshop แบบแครกมาใช้ทำงานกราฟิก",
+        options: [
+          "ไม่ผิด - ใช้ในการศึกษา",
+          "ผิดเฉพาะถ้านำไปขาย",
+          "ผิดกฎหมาย - ละเมิดลิขสิทธิ์ซอฟต์แวร์"
+        ],
+        correct: 2,
+        explanation: "✅ ผิดกฎหมาย! การใช้ซอฟต์แวร์ละเมิดลิขสิทธิ์ (แครก) ถือเป็นความผิดตามพระราชบัญญัติลิขสิทธิ์ มีโทษจำคุกและปรับ ไม่ว่าจะใช้เพื่อการศึกษาหรือพาณิชย์ ควรใช้ซอฟต์แวร์ถูกลิขสิทธิ์หรือทางเลือกฟรี"
+      },
+      {
+        icon: "🎣",
+        text: "ปอนด์ได้รับอีเมลแจ้งว่า 'บัญชีธนาคารของคุณมีปัญหา กรุณากรอกข้อมูล' พร้อมลิงก์ แล้วคลิกกรอกข้อมูล",
+        options: [
+          "ไม่เสี่ยง - ธนาคารส่งมาเอง",
+          "เสี่ยง - อาจเป็นฟิชชิ่งหลอกขโมยข้อมูล",
+          "ปลอดภัย - ถ้าเว็บเหมือนของจริง"
+        ],
+        correct: 1,
+        explanation: "✅ เสี่ยงมาก! นี่คือการโจมตีแบบ 'ฟิชชิ่ง' (Phishing) เพื่อหลอกขโมยข้อมูล ธนาคารจริงจะไม่ขอข้อมูลส่วนตัวทางอีเมล การตกเป็นเหยื่อและถูกโกงเงินเป็นผลจากการไม่ระวังภัยคุกคามทางไซเบอร์"
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    function updateUI() {
+      document.getElementById('game-title').textContent = window.elementSdk ? (window.elementSdk.config.game_title || defaultConfig.game_title) : defaultConfig.game_title;
+      document.getElementById('game-subtitle').textContent = window.elementSdk ? (window.elementSdk.config.game_subtitle || defaultConfig.game_subtitle) : defaultConfig.game_subtitle;
+    }
+
+    function loadQuestion() {
+      const scenario = scenarios[currentQuestion];
+      document.getElementById('question-number').textContent = `${currentQuestion + 1}/${scenarios.length}`;
+      document.getElementById('current-score').textContent = score;
+      document.getElementById('scenario-icon').textContent = scenario.icon;
+      document.getElementById('scenario-text').textContent = scenario.text;
+      
+      const optionsContainer = document.getElementById('options-container');
+      optionsContainer.innerHTML = '';
+      
+      scenario.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = option;
+        btn.onclick = () => selectAnswer(index);
+        optionsContainer.appendChild(btn);
+      });
+
+      document.getElementById('explanation').classList.remove('show');
+      document.getElementById('next-btn').classList.remove('show');
+    }
+
+    function selectAnswer(selected) {
+      const scenario = scenarios[currentQuestion];
+      const buttons = document.querySelectorAll('.option-btn');
+      
+      buttons.forEach((btn, index) => {
+        btn.disabled = true;
+        if (index === scenario.correct) {
+          btn.classList.add('correct');
+        } else if (index === selected && selected !== scenario.correct) {
+          btn.classList.add('incorrect');
+        }
+      });
+
+      if (selected === scenario.correct) {
+        score += 20;
+        document.getElementById('current-score').textContent = score;
+        document.getElementById('explanation-title').innerHTML = '🎉 ถูกต้อง!';
+      } else {
+        document.getElementById('explanation-title').innerHTML = '❌ ไม่ถูกต้อง';
+      }
+
+      document.getElementById('explanation-text').textContent = scenario.explanation;
+      document.getElementById('explanation').classList.add('show');
+      document.getElementById('next-btn').classList.add('show');
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < scenarios.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('game-screen').style.display = 'none';
+      document.getElementById('result-screen').classList.add('show');
+      document.getElementById('final-score').textContent = `${score}/100`;
+
+      let icon, title, message;
+      if (score === 100) {
+        icon = '🏆';
+        title = 'ยอดเยี่ยม!';
+        message = 'คุณมีความรู้เรื่องกฎหมายคอมพิวเตอร์อย่างดีเยี่ยม! เป็นแบบอย่างที่ดีในการใช้งานออนไลน์อย่างมีจริยธรรม';
+      } else if (score >= 60) {
+        icon = '👍';
+        title = 'ดีมาก!';
+        message = 'คุณมีความเข้าใจพื้นฐานเรื่องกฎหมายคอมพิวเตอร์ ลองเล่นอีกครั้งเพื่อพัฒนาความรู้ให้ดียิ่งขึ้น';
+      } else {
+        icon = '📚';
+        title = 'ต้องพัฒนา';
+        message = 'ยังต้องศึกษาเพิ่มเติมเกี่ยวกับกฎหมายคอมพิวเตอร์ ลองเล่นอีกครั้งและอ่านคำอธิบายให้ดีนะ';
+      }
+
+      document.getElementById('result-icon').textContent = icon;
+      document.getElementById('result-title').textContent = title;
+      document.getElementById('result-message').textContent = message;
+    }
+
+    function restartGame() {
+      currentQuestion = 0;
+      score = 0;
+      document.getElementById('game-screen').style.display = 'block';
+      document.getElementById('result-screen').classList.remove('show');
+      loadQuestion();
+    }
+
+    document.getElementById('next-btn').addEventListener('click', nextQuestion);
+    document.getElementById('restart-btn').addEventListener('click', restartGame);
+
+    async function onConfigChange(config) {
+      updateUI();
+    }
+
+    async function init() {
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig: defaultConfig,
+          onConfigChange: onConfigChange,
+          mapToCapabilities: (config) => ({
+            recolorables: [],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ["game_title", config.game_title || defaultConfig.game_title],
+            ["game_subtitle", config.game_subtitle || defaultConfig.game_subtitle]
+          ])
+        });
+      }
+      
+      updateUI();
+      loadQuestion();
+    }
+
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c59f45ec66010e2',t:'MTc2OTcwMjU1My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
